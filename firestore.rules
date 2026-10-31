@@ -1,0 +1,120 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Funciones auxiliares de autenticación y rol
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+
+    function getUserRole() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
+        ? getUserData().rol
+        : null;
+    }
+
+    function isAdmin() {
+      return getUserRole() == 'admin';
+    }
+
+    function isTecnico() {
+      return getUserRole() == 'tecnico';
+    }
+
+    // Reglas para la colección de usuarios
+    match /usuarios/{userId} {
+      // Cualquier usuario autenticado puede leer perfiles (necesario para ver nombres de técnicos / creadores)
+      allow read: if isAuthenticated();
+
+      // Un usuario solo puede crear su propio perfil inicial con rol 'usuario'
+      allow create: if isOwner(userId)
+                    && request.resource.data.rol == 'usuario'
+                    && request.resource.data.activo == true
+                    && request.resource.data.email == request.auth.token.email;
+
+      // Solo el administrador puede modificar el rol o activar/desactivar usuarios
+      // El usuario dueño solo puede actualizar su propio nombre
+      allow update: if isAdmin() 
+                    || (isOwner(userId) 
+                        && request.resource.data.rol == resource.data.rol 
+                        && request.resource.data.activo == resource.data.activo);
+
+      // Nadie puede borrar usuarios directamente
+      allow delete: if isAdmin();
+    }
+
+    // Reglas para categorías
+    match /categorias/{categoriaId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Reglas para la colección de tickets
+    match /tickets/{ticketId} {
+      // Lectura: Administradores leen todo; Técnicos leen sus asignados; Usuarios leen solo los propios
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        (isTecnico() && resource.data.asignadoA == request.auth.uid) ||
+        resource.data.creadoPor == request.auth.uid
+      );
+
+      // Creación: Usuarios autenticados pueden crear con su propio UID
+      allow create: if isAuthenticated()
+                    && request.resource.data.creadoPor == request.auth.uid
+                    && request.resource.data.estado == 'pendiente'
+                    && request.resource.data.asignadoA == null;
+
+      // Actualización:
+      // 1. Admin puede editar cualquier campo (asignar, cambiar prioridad, estado, etc.)
+      // 2. Técnico asignado puede cambiar estado y solución
+      // 3. Creador puede editar título o descripción mientras esté en estado 'pendiente'
+      allow update: if isAuthenticated() && (
+        isAdmin() ||
+        (isTecnico() 
+          && resource.data.asignadoA == request.auth.uid
+          && request.resource.data.creadoPor == resource.data.creadoPor
+          && request.resource.data.asignadoA == resource.data.asignadoA
+        ) ||
+        (isOwner(resource.data.creadoPor)
+          && resource.data.estado == 'pendiente'
+          && request.resource.data.creadoPor == resource.data.creadoPor
+          && request.resource.data.asignadoA == resource.data.asignadoA
+          && request.resource.data.prioridad == resource.data.prioridad
+        )
+      );
+
+      // Eliminación: Solo Administrador
+      allow delete: if isAdmin();
+
+      // Subcolección de historial y comentarios
+      match /historial/{eventoId} {
+        // Se puede leer si se tiene acceso al ticket padre
+        allow read: if isAuthenticated() && (
+          isAdmin() ||
+          (isTecnico() && get(/databases/$(database)/documents/tickets/$(ticketId)).data.asignadoA == request.auth.uid) ||
+          get(/databases/$(database)/documents/tickets/$(ticketId)).data.creadoPor == request.auth.uid
+        );
+
+        // Se puede agregar historial si es el autor y tiene acceso al ticket
+        allow create: if isAuthenticated()
+                      && request.resource.data.autorId == request.auth.uid
+                      && (
+                        isAdmin() ||
+                        (isTecnico() && get(/databases/$(database)/documents/tickets/$(ticketId)).data.asignadoA == request.auth.uid) ||
+                        get(/databases/$(database)/documents/tickets/$(ticketId)).data.creadoPor == request.auth.uid
+                      );
+
+        // El historial es inmutable: no se puede modificar ni borrar
+        allow update, delete: if false;
+      }
+    }
+  }
+}

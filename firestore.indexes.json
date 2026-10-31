@@ -1,0 +1,29 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "tickets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "creadoPor", "order": "ASCENDING" },
+        { "fieldPath": "fechaCreacion", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "tickets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "asignadoA", "order": "ASCENDING" },
+        { "fieldPath": "fechaCreacion", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "tickets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "estado", "order": "ASCENDING" },
+        { "fieldPath": "fechaCreacion", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
