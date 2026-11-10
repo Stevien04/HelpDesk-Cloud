@@ -183,7 +183,7 @@ export const Reportes = () => {
             <p className="text-emerald-400"># 1. Habilitar Point-in-Time Recovery (PITR) en Firestore:</p>
             <p>gcloud firestore databases update --database="(default)" --point-in-time-recovery=ENABLE</p>
             <p className="text-emerald-400 pt-2"># 2. Exportar colecciones activas a Cloud Storage:</p>
-            <p>gcloud firestore export gs://helpdesk-cloud-backups/$(date +%Y%m%d_%H%M%S) --collection-ids='tickets','usuarios'</p>
+            <p>gcloud firestore export gs://helpdesk-cloud-backups/$(date +%Y%m%d_%H%M%S) --collection-ids='tickets','usuarios','categorias','historial'</p>
             <p className="text-emerald-400 pt-2"># 3. Restaurar snapshot ante contingencia:</p>
             <p>gcloud firestore import gs://helpdesk-cloud-backups/20261030_020000/</p>
           </div>

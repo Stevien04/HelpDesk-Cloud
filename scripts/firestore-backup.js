@@ -38,10 +38,10 @@ async function executeNoSQLBackup() {
   console.log('====================================================');
   console.log(`[INFO] Fecha y hora de ejecución : ${new Date().toISOString()}`);
   console.log(`[INFO] Destino de Respaldo       : ${targetUri}`);
-  console.log(`[INFO] Colecciones a Respaldar   : tickets, usuarios, categorias`);
+  console.log(`[INFO] Colecciones a Respaldar   : tickets, usuarios, categorias, historial`);
   console.log(`[INFO] Tipo de Respaldo          : Managed Snapshot Export`);
 
-  const gcloudCommand = `gcloud firestore export "${targetUri}" --collection-ids='tickets','usuarios','categorias'`;
+  const gcloudCommand = `gcloud firestore export "${targetUri}" --collection-ids='tickets','usuarios','categorias','historial'`;
 
   console.log(`\n[EJECUTANDO COMANDO]:\n${gcloudCommand}\n`);
 

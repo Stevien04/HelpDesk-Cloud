@@ -72,8 +72,9 @@ Para la aplicación **HelpDesk Cloud**, se diseñó una estrategia integral de r
 - **Comando de exportación manual:**
   ```bash
   gcloud firestore export gs://helpdesk-cloud-backups/$(date +%Y%m%d_%H%M%S) \
-    --collection-ids='tickets','usuarios','categorias'
+    --collection-ids='tickets','usuarios','categorias','historial'
   ```
+  `--collection-ids` filtra por identificador de colección: la subcolección `historial` debe indicarse de forma explícita o quedará fuera de la copia.
 
 ---
 

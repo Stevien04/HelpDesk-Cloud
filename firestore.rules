@@ -88,6 +88,16 @@ service cloud.firestore {
           && request.resource.data.creadoPor == resource.data.creadoPor
           && request.resource.data.asignadoA == resource.data.asignadoA
           && request.resource.data.prioridad == resource.data.prioridad
+        ) ||
+        // 4. Creador puede cerrar o reabrir su ticket una vez resuelto
+        (isOwner(resource.data.creadoPor)
+          && resource.data.estado == 'resuelto'
+          && request.resource.data.estado in ['cerrado', 'en_proceso']
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'fechaActualizacion'])
+        ) ||
+        // 5. Creador puede actualizar la fecha de modificación al comentar
+        (isOwner(resource.data.creadoPor)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fechaActualizacion'])
         )
       );
 
@@ -103,13 +113,16 @@ service cloud.firestore {
           get(/databases/$(database)/documents/tickets/$(ticketId)).data.creadoPor == request.auth.uid
         );
 
-        // Se puede agregar historial si es el autor y tiene acceso al ticket
+        // Se puede agregar historial si es el autor y tiene acceso al ticket.
+        // Se usa getAfter() y no get(): al crear un ticket, el ticket y su primer evento
+        // de historial van en el mismo lote (writeBatch). get() consulta el estado previo
+        // al lote, donde el ticket todavía no existe, y la escritura completa se rechazaba.
         allow create: if isAuthenticated()
                       && request.resource.data.autorId == request.auth.uid
                       && (
                         isAdmin() ||
-                        (isTecnico() && get(/databases/$(database)/documents/tickets/$(ticketId)).data.asignadoA == request.auth.uid) ||
-                        get(/databases/$(database)/documents/tickets/$(ticketId)).data.creadoPor == request.auth.uid
+                        (isTecnico() && getAfter(/databases/$(database)/documents/tickets/$(ticketId)).data.asignadoA == request.auth.uid) ||
+                        getAfter(/databases/$(database)/documents/tickets/$(ticketId)).data.creadoPor == request.auth.uid
                       );
 
         // El historial es inmutable: no se puede modificar ni borrar

@@ -31,3 +31,7 @@ firestore-debug.log
 *.njsproj
 *.sln
 *.sw?
+
+# Grabaciones de video (demasiado grandes para GitHub)
+video/*.mp4
+video/audio/

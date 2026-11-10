@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>HelpDesk Cloud — Diapositivas del video</title>
+<style>
+  :root {
+    --bg: #0b1220;
+    --panel: #131c2e;
+    --panel-2: #18233a;
+    --line: #26344f;
+    --text: #e8eefb;
+    --muted: #9fb0cf;
+    --blue: #3b82f6;
+    --blue-strong: #2563eb;
+    --blue-soft: #93c5fd;
+    --green: #34d399;
+    --amber: #fbbf24;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); }
+  body { font-family: "Segoe UI", system-ui, sans-serif; color: var(--text); }
+
+  .slide {
+    width: 1920px; height: 1080px; position: relative; overflow: hidden;
+    padding: 90px 120px 110px;
+    background:
+      radial-gradient(1100px 700px at 100% 0%, rgba(37, 99, 235, .22), transparent 60%),
+      radial-gradient(900px 600px at 0% 100%, rgba(59, 130, 246, .10), transparent 60%),
+      var(--bg);
+    display: flex; flex-direction: column;
+  }
+  body.single .slide { display: none; }
+  body.single .slide.on { display: flex; }
+
+  /* Modo presentación: una diapositiva a la vez, ajustada a la ventana */
+  body.present { overflow: hidden; height: 100vh; background: #000; cursor: default; }
+  body.present .slide {
+    display: none; position: fixed; left: 50%; top: 50%;
+    transform: translate(-50%, -50%) scale(var(--k, 1)); transform-origin: center;
+  }
+  body.present .slide.on { display: flex; }
+
+  .kicker { font-size: 26px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--blue-soft); }
+  h1 { font-size: 132px; font-weight: 700; letter-spacing: -.02em; line-height: 1.02; }
+  h2 { font-size: 72px; font-weight: 700; letter-spacing: -.015em; line-height: 1.1; margin-top: 14px; }
+  .lead { font-size: 40px; line-height: 1.35; color: var(--muted); max-width: 1400px; }
+  .body { flex: 1; display: flex; flex-direction: column; justify-content: center; margin-top: 40px; }
+
+  .foot {
+    position: absolute; left: 120px; right: 120px; bottom: 48px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 22px; color: var(--muted);
+    border-top: 1px solid var(--line); padding-top: 18px;
+  }
+  .foot b { color: var(--text); font-weight: 600; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 16px; }
+  .chip {
+    font-size: 28px; padding: 12px 26px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--text);
+  }
+
+  .cards { display: grid; gap: 32px; }
+  .cards.c3 { grid-template-columns: repeat(3, 1fr); }
+  .cards.c2 { grid-template-columns: repeat(2, 1fr); }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 24px;
+    padding: 40px 42px;
+  }
+  .card .num {
+    width: 64px; height: 64px; border-radius: 16px; background: var(--blue-strong);
+    display: grid; place-items: center; font-size: 32px; font-weight: 700; margin-bottom: 28px;
+  }
+  .card h3 { font-size: 40px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; }
+  .card p, .card li { font-size: 30px; line-height: 1.4; color: var(--muted); }
+  .card ul { list-style: none; display: grid; gap: 14px; }
+  .card li { padding-left: 34px; position: relative; }
+  .card li::before {
+    content: ""; position: absolute; left: 0; top: 16px;
+    width: 14px; height: 14px; border-radius: 50%; background: var(--blue);
+  }
+  .tag { font-size: 24px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--blue-soft); margin-bottom: 14px; }
+
+  code, pre { font-family: Consolas, "Cascadia Mono", monospace; }
+  code { color: var(--blue-soft); }
+  pre {
+    background: #0a101c; border: 1px solid var(--line); border-radius: 16px;
+    padding: 22px 26px; font-size: 25px; line-height: 1.5; color: #cfe0ff;
+    white-space: pre-wrap; margin-top: 22px;
+  }
+  pre .c { color: #6f84a8; }
+
+  /* Portada */
+  .cover { justify-content: center; }
+  .logo { display: flex; align-items: center; gap: 22px; margin-bottom: 44px; }
+  .logo svg { width: 92px; height: 92px; }
+  .logo span { font-size: 34px; font-weight: 600; color: var(--blue-soft); letter-spacing: .04em; }
+  .cover .lead { margin: 30px 0 50px; font-size: 46px; color: var(--text); }
+  .team { margin-top: 46px; font-size: 30px; color: var(--muted); }
+  .team b { color: var(--text); font-weight: 600; }
+
+  /* Arquitectura */
+  .layers { display: grid; gap: 0; }
+  .layer {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 22px;
+    padding: 26px 34px; display: grid; grid-template-columns: 330px 1fr; gap: 30px; align-items: center;
+  }
+  .layer .name { font-size: 26px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--blue-soft); line-height: 1.3; }
+  .boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .boxes.one { grid-template-columns: 1fr; }
+  .box { background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px; padding: 20px 26px; }
+  .box b { display: block; font-size: 32px; font-weight: 700; margin-bottom: 6px; }
+  .box span { font-size: 26px; color: var(--muted); line-height: 1.35; }
+  .link { display: flex; align-items: center; justify-content: center; gap: 18px; height: 62px; font-size: 24px; color: var(--muted); }
+  .link i { width: 2px; height: 100%; background: var(--blue); display: block; }
+
+  /* Modelo */
+  .split { display: grid; grid-template-columns: 1.05fr 1fr; gap: 36px; align-items: stretch; }
+  .tree { font-size: 28px; line-height: 1.6; margin-top: 0; height: 100%; }
+  .tree b { color: #fff; }
+
+  /* Pasos */
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+  .step { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 34px 32px; }
+  .step .who { font-size: 24px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--blue-soft); margin-bottom: 14px; }
+  .step p { font-size: 32px; line-height: 1.35; }
+  .url {
+    display: inline-block; font-family: Consolas, monospace; font-size: 38px; color: var(--blue-soft);
+    background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px 32px; margin-bottom: 44px;
+  }
+
+  /* Pipeline */
+  .pipe { display: grid; grid-template-columns: 1fr 60px 1fr 60px 1fr 60px 1fr 60px 1fr; align-items: stretch; }
+  .stage { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 32px 26px; text-align: center; }
+  .stage.end { border-color: var(--green); }
+  .stage b { display: block; font-size: 34px; font-weight: 700; margin-bottom: 10px; }
+  .stage span { font-size: 25px; color: var(--muted); line-height: 1.35; }
+  .arrow { display: grid; place-items: center; font-size: 44px; color: var(--blue); }
+  .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 44px; }
+  .note { font-size: 28px; line-height: 1.4; color: var(--muted); border-left: 4px solid var(--blue); padding-left: 22px; }
+  .note b { color: var(--text); font-weight: 600; }
+
+  /* Métricas */
+  .metric { text-align: left; }
+  .metric .big { font-size: 112px; font-weight: 700; letter-spacing: -.02em; line-height: 1; color: #fff; margin: 10px 0 18px; }
+  .metric .big small { font-size: 50px; font-weight: 600; color: var(--blue-soft); }
+  .row3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-top: 36px; }
+
+  /* Cierre */
+  .links { display: grid; gap: 20px; }
+  .linkrow { display: grid; grid-template-columns: 300px 1fr; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 24px 32px; }
+  .linkrow span { font-size: 26px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .linkrow code { font-size: 34px; }
+  .thanks { font-size: 64px; font-weight: 700; margin-top: 44px; }
+</style>
+</head>
+<body>
+
+<!-- 1. Portada -->
+<section class="slide cover">
+  <div class="logo">
+    <svg viewBox="0 0 92 92" fill="none">
+      <rect width="92" height="92" rx="22" fill="#2563eb"/>
+      <path d="M30 60h34a11 11 0 0 0 1.6-21.9A16 16 0 0 0 34.5 35 12.5 12.5 0 0 0 30 60z" fill="#fff"/>
+      <path d="M41 47.5l5 5 8.5-9.5" stroke="#2563eb" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>BASE DE DATOS II · PROYECTO NoSQL</span>
+  </div>
+  <h1>HelpDesk Cloud</h1>
+  <p class="lead">Arquitectura NoSQL, CI/CD y estrategia de respaldo en la nube</p>
+  <div class="chips">
+    <span class="chip">Cloud Firestore</span>
+    <span class="chip">React 19 + Vite</span>
+    <span class="chip">GitHub Actions</span>
+    <span class="chip">Render</span>
+  </div>
+  <p class="team" id="team"></p>
+</section>
+
+<!-- 2. Qué resuelve -->
+<section class="slide">
+  <div class="kicker">Introducción</div>
+  <h2>Gestión de incidencias de TI sobre una base NoSQL</h2>
+  <div class="body">
+    <div class="cards c3">
+      <div class="card">
+        <div class="num">1</div>
+        <h3>Aplicación ágil</h3>
+        <p>Registro, asignación y seguimiento de tickets en una aplicación web sin servidor propio.</p>
+      </div>
+      <div class="card">
+        <div class="num">2</div>
+        <h3>Acceso por roles</h3>
+        <p>Usuario, técnico y administrador, cada uno limitado por reglas de seguridad de Firestore.</p>
+      </div>
+      <div class="card">
+        <div class="num">3</div>
+        <h3>Respaldo y recuperación</h3>
+        <p>Recuperación a un punto en el tiempo y exportaciones diarias ante desastres.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span><b>HelpDesk Cloud</b></span><span>Introducción</span></div>
+</section>
+
+<!-- 3. Arquitectura -->
+<section class="slide">
+  <div class="kicker">Arquitectura</div>
+  <h2>Tres capas, sin servidores que administrar</h2>
+  <div class="body">
+    <div class="layers">
+      <div class="layer">
+        <div class="name">Presentación</div>
+        <div class="boxes">
+          <div class="box"><b>React 19 + Vite + Tailwind CSS</b><span>Aplicación de una sola página</span></div>
+          <div class="box"><b>Render Static Site</b><span>CDN global con HTTPS</span></div>
+        </div>
+      </div>
+      <div class="link"><i></i><span>Firebase Web SDK · HTTPS</span></div>
+      <div class="layer">
+        <div class="name">Servicios en la nube</div>
+        <div class="boxes">
+          <div class="box"><b>Firebase Authentication</b><span>Correo y contraseña, tokens JWT</span></div>
+          <div class="box"><b>Cloud Firestore</b><span>Base documental con reglas de seguridad</span></div>
+        </div>
+      </div>
+      <div class="link"><i></i><span>gcloud · tarea programada</span></div>
+      <div class="layer">
+        <div class="name">Respaldo y resiliencia</div>
+        <div class="boxes">
+          <div class="box"><b>Point-in-Time Recovery</b><span>Ventana continua de 7 días</span></div>
+          <div class="box"><b>Cloud Storage</b><span>Exportaciones diarias</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span><b>HelpDesk Cloud</b></span><span>Arquitectura</span></div>
+</section>
+
+<!-- 4. Modelo NoSQL -->
+<section class="slide">
+  <div class="kicker">Modelo NoSQL</div>
+  <h2>Cada incidencia es un documento con su historial</h2>
+  <div class="body">
+    <div class="split">
+      <pre class="tree"><b>usuarios</b>/{uid}
+  nombre, email, rol, activo
+
+<b>tickets</b>/{ticketId}
+  titulo, categoriaId, prioridad,
+  estado, creadoPor, asignadoA
+  │
+  └─ <b>historial</b>/{eventoId}
+       tipo, autorId, anterior,
+       nuevo, comentario, fecha</pre>
+      <div class="card">
+        <div class="tag">Reglas de seguridad</div>
+        <ul>
+          <li>Un registro nuevo solo puede tener el rol <code>usuario</code>.</li>
+          <li>Solo el administrador cambia roles y asigna técnicos.</li>
+          <li>El usuario ve sus tickets; el técnico, los asignados.</li>
+          <li>El historial es inmutable.</li>
+        </ul>
+        <pre>allow update, delete: if false;</pre>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span><b>HelpDesk Cloud</b></span><span>Modelo NoSQL</span></div>
+</section>
+
+<!-- 5. Demo -->
+<section class="slide">
+  <div class="kicker">Demostración en vivo</div>
+  <h2>Un ticket, de principio a fin</h2>
+  <div class="body">
+    <div><span class="url">helpdesk-cloud.onrender.com</span></div>
+    <div class="steps">
+      <div class="step"><div class="who">Usuario</div><p>Registra un ticket por falla de impresora.</p></div>
+      <div class="step"><div class="who">Administrador</div><p>Asigna el ticket a un técnico.</p></div>
+      <div class="step"><div class="who">Técnico</div><p>Lo pasa a «En proceso» y documenta la solución.</p></div>
+      <div class="step"><div class="who">Firestore</div><p>Cada cambio queda registrado en el historial.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span><b>HelpDesk Cloud</b></span><span>Demostración</span></div>
+</section>
+
+<!-- 6. CI/CD -->
+<section class="slide">
+  <div class="kicker">CI/CD con GitHub Actions</div>
+  <h2>Del commit a producción sin pasos manuales</h2>
+  <div class="body">
+    <div class="pipe">
+      <div class="stage"><b>Push</b><span>a la rama <code>main</code></span></div>
+      <div class="arrow">→</div>
+      <div class="stage"><b>Instalar</b><span><code>npm ci</code></span></div>
+      <div class="arrow">→</div>
+      <div class="stage"><b>Probar</b><span>Pruebas unitarias con Vitest</span></div>
+      <div class="arrow">→</div>
+      <div class="stage"><b>Compilar</b><span>Bundle con Vite</span></div>
+      <div class="arrow">→</div>
+      <div class="stage end"><b>Desplegar</b><span>Nueva versión en Render</span></div>
+    </div>
+    <div class="notes">
+      <div class="note"><b>Workflow</b><br><code>.github/workflows/deploy.yml</code></div>
+      <div class="note"><b>Se ejecuta</b><br>en cada push y pull request a <code>main</code></div>
+      <div class="note"><b>Repositorio público en GitHub</b><br><code>Stevien04/HelpDesk-Cloud</code></div>
+    </div>
+  </div>
+  <div class="foot"><span><b>HelpDesk Cloud</b></span><span>CI/CD</span></div>
+</section>
+
+<!-- 7. Respaldo -->
+<section class="slide">
+  <div class="kicker">Estrategia de respaldo NoSQL</div>
+  <h2>Dos niveles de protección</h2>
+  <div class="body">
+    <div class="cards c2">
+      <div class="card">
+        <div class="tag">Nivel 1 · Continuo</div>
+        <h3>Point-in-Time Recovery</h3>
+        <ul>
+          <li>Ventana de retención de 7 días.</li>
+          <li>Recuperación al segundo exacto.</li>
+          <li>Protege ante errores humanos.</li>
+        </ul>
+        <pre>gcloud firestore databases update \
+  --point-in-time-recovery=ENABLE</pre>
+      </div>
+      <div class="card">
+        <div class="tag">Nivel 2 · Programado</div>
+        <h3>Exportaciones a Cloud Storage</h3>
+        <ul>
+          <li>Copia diaria a las 02:00 UTC.</li>
+          <li>Retención histórica a largo plazo.</li>
+          <li>Ciclo de vida hacia almacenamiento frío.</li>
+        </ul>
+        <pre>gcloud firestore export \
+  gs://helpdesk-cloud-backups/...</pre>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span><b>HelpDesk Cloud</b></span><span>Respaldo</span></div>
+</section>
+
+<!-- 8. Métricas -->
+<section class="slide">
+  <div class="kicker">Recuperación ante desastres</div>
+  <h2>Objetivos de recuperación</h2>
+  <div class="body">
+    <div class="cards c3">
+      <div class="card metric">
+        <div class="tag">RPO</div>
+        <div class="big">&lt; 1 <small>min</small></div>
+        <p>Pérdida máxima de datos admisible, gracias a PITR.</p>
+      </div>
+      <div class="card metric">
+        <div class="tag">RTO</div>
+        <div class="big">&lt; 20 <small>min</small></div>
+        <p>Tiempo máximo para restaurar el servicio.</p>
+      </div>
+      <div class="card metric">
+        <div class="tag">Durabilidad</div>
+        <div class="big">11 <small>nueves</small></div>
+        <p>99,999999999 % en Cloud Storage multirregión.</p>
+      </div>
+    </div>
+    <div class="row3">
+      <div class="note"><b>Cifrado en reposo</b><br>AES-256</div>
+      <div class="note"><b>Cifrado en tránsito</b><br>TLS en la red de Google</div>
+      <div class="note"><b>Menor privilegio</b><br>Solo una cuenta de servicio exporta</div>
+    </div>
+  </div>
+  <div class="foot"><span><b>HelpDesk Cloud</b></span><span>Respaldo</span></div>
+</section>
+
+<!-- 9. Cierre -->
+<section class="slide">
+  <div class="kicker">Conclusiones</div>
+  <h2>NoSQL viable, escalable y seguro en un entorno corporativo</h2>
+  <div class="body">
+    <div class="links">
+      <div class="linkrow"><span>Repositorio</span><code>github.com/Stevien04/HelpDesk-Cloud</code></div>
+      <div class="linkrow"><span>Aplicación</span><code>helpdesk-cloud.onrender.com</code></div>
+      <div class="linkrow"><span>Artículo</span><code>Enlace en la descripción del video</code></div>
+    </div>
+    <p class="thanks">¡Muchas gracias!</p>
+  </div>
+  <div class="foot"><span><b>HelpDesk Cloud</b></span><span>Conclusiones</span></div>
+</section>
+
+<script>
+  // Escribe aquí los nombres de los integrantes; si queda vacío, la portada no muestra la línea.
+  const INTEGRANTES = [];
+
+  const team = document.getElementById('team');
+  if (INTEGRANTES.length) {
+    team.innerHTML = '<b>Integrantes:</b> ' + INTEGRANTES.join(' · ');
+  } else {
+    team.remove();
+  }
+
+  const slides = document.querySelectorAll('.slide');
+  const n = parseInt(new URLSearchParams(location.search).get('s'), 10);
+
+  if (n) {
+    // ?s=N muestra solo la diapositiva N a tamaño real (lo usa el script de exportación).
+    document.body.classList.add('single');
+    if (slides[n - 1]) slides[n - 1].classList.add('on');
+  } else {
+    // Sin parámetros: modo presentación.
+    // Flecha derecha / espacio / clic: siguiente. Flecha izquierda: anterior. 1-9: ir a esa diapositiva.
+    document.body.classList.add('present');
+    let i = Math.min(Math.max((parseInt(location.hash.slice(1), 10) || 1) - 1, 0), slides.length - 1);
+
+    const fit = () => {
+      const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+      document.body.style.setProperty('--k', k);
+    };
+    const show = (j) => {
+      i = Math.min(Math.max(j, 0), slides.length - 1);
+      slides.forEach((s, idx) => s.classList.toggle('on', idx === i));
+      history.replaceState(null, '', '#' + (i + 1));
+    };
+
+    addEventListener('resize', fit);
+    addEventListener('keydown', (e) => {
+      if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); show(i + 1); }
+      else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); show(i - 1); }
+      else if (/^[1-9]$/.test(e.key)) show(parseInt(e.key, 10) - 1);
+    });
+    addEventListener('click', () => show(i + 1));
+
+    fit();
+    show(i);
+  }
+</script>
+</body>
+</html>

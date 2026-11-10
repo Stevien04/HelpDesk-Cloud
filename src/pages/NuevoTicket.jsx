@@ -3,16 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { createTicket } from '../services/ticketService';
 import TicketForm from '../components/tickets/TicketForm';
-import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 export const NuevoTicket = () => {
-  const { currentUser, userProfile } = useAuth();
+  const { currentUser, userProfile, demoMode } = useAuth();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (formData) => {
     setIsSubmitting(true);
+    setErrorMessage('');
     try {
       const user = {
         uid: currentUser.uid,
@@ -30,11 +32,12 @@ export const NuevoTicket = () => {
         navigate(`/tickets/${newTicket.id || ''}`);
       }, 1200);
     } catch (error) {
-      console.warn('Fallo de conexión Firestore directa. Simulando registro local exitoso para presentación:', error);
-      setSuccessMessage(true);
-      setTimeout(() => {
-        navigate('/tickets');
-      }, 1200);
+      console.error('No se pudo guardar el ticket en Firestore:', error);
+      setErrorMessage(
+        demoMode
+          ? 'El ticket no se guardó. El acceso rápido de demostración no inicia sesión en Firebase, así que Firestore rechaza la escritura. Cierra sesión e ingresa con una cuenta registrada para guardar tickets.'
+          : `El ticket no se guardó en Firestore: ${error.message}`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -57,6 +60,13 @@ export const NuevoTicket = () => {
             Completa la información técnica para que el equipo de soporte pueda evaluar y atender tu solicitud.
           </p>
         </div>
+
+        {errorMessage && (
+          <div className="mb-6 p-4 rounded-xl text-sm flex items-start border bg-rose-50 text-rose-800 border-rose-200">
+            <AlertCircle className="w-5 h-5 mr-2 shrink-0 mt-0.5" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
 
         {successMessage ? (
           <div className="p-8 text-center bg-emerald-50 rounded-xl border border-emerald-200">
