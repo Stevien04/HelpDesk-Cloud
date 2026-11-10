@@ -8,6 +8,7 @@ import {
   logoutUser,
   resetPassword
 } from '../services/authService';
+import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '../config/demoAccounts';
 
 const AuthContext = createContext();
 
@@ -23,9 +24,6 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // Demo user simulation for evaluation when offline or using placeholder keys
-  const [demoMode, setDemoMode] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -53,16 +51,14 @@ export const AuthProvider = ({ children }) => {
           });
         }
       } else {
-        if (!demoMode) {
-          setCurrentUser(null);
-          setUserProfile(null);
-        }
+        setCurrentUser(null);
+        setUserProfile(null);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [demoMode]);
+  }, []);
 
   const login = async (email, password) => {
     const res = await loginUser(email, password);
@@ -79,32 +75,26 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    if (demoMode) {
-      setDemoMode(false);
-      setCurrentUser(null);
-      setUserProfile(null);
-      return;
-    }
     await logoutUser();
     setCurrentUser(null);
     setUserProfile(null);
   };
 
-  // Método especial para pruebas de laboratorio / presentación académica (permite alternar roles sin alterar BD)
-  const setDemoRole = (role) => {
-    setDemoMode(true);
-    const mockUser = {
-      uid: `demo-${role}-123`,
-      email: `${role}@helpdesk.cloud`,
-      displayName: `Usuario Demo (${role.toUpperCase()})`
-    };
-    setCurrentUser(mockUser);
-    setUserProfile({
-      nombre: `Operador ${role.toUpperCase()}`,
-      email: mockUser.email,
-      rol: role,
-      activo: true
-    });
+  // Acceso rápido de demostración: inicia sesión real con la cuenta demo del rol pedido.
+  // Si la cuenta todavía no existe, la registra (siempre con rol 'usuario'; el rol de
+  // técnico o administrador se asigna una vez desde la consola de Firebase).
+  const loginDemo = async (role) => {
+    const account = DEMO_ACCOUNTS[role];
+    if (!account) throw new Error(`Rol de demostración desconocido: ${role}`);
+
+    try {
+      return await login(account.email, DEMO_PASSWORD);
+    } catch (error) {
+      const cuentaInexistente =
+        error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found';
+      if (!cuentaInexistente) throw error;
+      return await register(account.email, DEMO_PASSWORD, account.nombre);
+    }
   };
 
   const value = {
@@ -116,8 +106,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     resetPassword,
-    setDemoRole,
-    demoMode
+    loginDemo
   };
 
   return (

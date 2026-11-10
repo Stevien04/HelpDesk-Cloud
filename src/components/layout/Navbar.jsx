@@ -4,8 +4,18 @@ import useAuth from '../../hooks/useAuth';
 import { Cloud, LogOut, User, ShieldAlert, Cpu } from 'lucide-react';
 
 export const Navbar = () => {
-  const { currentUser, userProfile, role, logout, setDemoRole } = useAuth();
+  const { currentUser, userProfile, role, logout, loginDemo } = useAuth();
   const navigate = useNavigate();
+
+  // Cambia a la cuenta de demostración del rol elegido (inicio de sesión real).
+  const setDemoRole = async (demoRole) => {
+    try {
+      await loginDemo(demoRole);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error al cambiar de cuenta de demostración:', error);
+    }
+  };
 
   const handleLogout = async () => {
     try {
