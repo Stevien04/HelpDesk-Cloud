@@ -32,15 +32,14 @@ Las diapositivas ya no se recorren con la rueda del ratón. Se ve una sola a la 
 
 ### 4. Prepara la aplicación
 
-La demo necesita **tres cuentas reales**, una por rol. Los botones de acceso rápido (Admin, Técnico, Usuario) no sirven: no inician sesión en Firebase y Firestore rechaza todo lo que intentan guardar.
+Los accesos rápidos (Admin, Técnico, Usuario) inician sesión con tres cuentas de demostración reales, así que los tres roles ven los mismos tickets. Hay que prepararlas una sola vez:
 
-1. En la aplicación, usa «Regístrate aquí» para crear tres cuentas: una para el usuario, una para el técnico y una para el administrador.
-2. En la consola de Firebase → Firestore → colección `usuarios`, abre el documento del técnico y cambia `rol` a `tecnico`; abre el del administrador y cambia `rol` a `admin`.
-3. Publica las reglas corregidas de `firestore.rules` (consola de Firebase → Firestore → Reglas → pegar y publicar). Sin este paso, un usuario normal no puede crear tickets.
-4. Haz una prueba completa antes de grabar: crea un ticket, asígnalo y atiéndelo.
-5. Deja abierta la pantalla de inicio de sesión. Abre la aplicación un minuto antes de grabar: el servidor tarda en despertar la primera vez.
+1. En la pantalla de inicio, pulsa una vez cada acceso rápido: **Usuario**, **Técnico** y **Admin**. La primera vez, cada cuenta se crea sola con rol `usuario`; con Técnico y Admin verás un aviso de que falta asignar el rol.
+2. En la consola de Firebase → Firestore → colección `usuarios`, abre el documento de `demo.tecnico@example.com` y cambia `rol` a `tecnico`; abre el de `demo.admin@example.com` y cambia `rol` a `admin`.
+3. Haz una prueba completa antes de grabar: crea un ticket, asígnalo y atiéndelo.
+4. Deja abierta la pantalla de inicio de sesión. Abre la aplicación un minuto antes de grabar: el servidor tarda en despertar la primera vez.
 
-Durante la demo **no uses los botones de rol de la barra superior**: cambian a un usuario simulado. Para cambiar de rol, cierra sesión y entra con la otra cuenta.
+Para cambiar de rol durante la demo, usa el selector **Demo Rol** de la barra superior (Usuario, Técnico, Admin).
 
 ### 5. Corrige OBS
 
@@ -108,7 +107,7 @@ El audio anterior quedó bajo. Acerca el micrófono o sube su nivel en el mezcla
 
 **MOSTRAR:** pulsa `Ctrl + 2` para ir a la aplicación.
 
-1. Inicia sesión con la cuenta del **usuario** (correo y contraseña).
+1. En la pantalla de inicio, haz clic en el acceso rápido **Usuario**.
 2. En el menú de la izquierda, haz clic en **Crear Ticket**.
 3. Escribe el título: `Impresora de ventas no imprime`.
 4. Elige la categoría **Hardware** y una prioridad.
@@ -124,7 +123,7 @@ El audio anterior quedó bajo. Acerca el micrófono o sube su nivel en el mezcla
 
 **MOSTRAR:**
 
-1. Cierra sesión (icono de salida, arriba a la derecha) e inicia sesión con la cuenta del **administrador**.
+1. En la barra superior, en **Demo Rol**, haz clic en **Admin**.
 2. En el menú de la izquierda, haz clic en **Incidencias**.
 3. Haz clic en el ticket de la impresora para abrirlo.
 4. En «Asignar a Técnico», elige un técnico de la lista.
@@ -139,7 +138,7 @@ El audio anterior quedó bajo. Acerca el micrófono o sube su nivel en el mezcla
 
 **MOSTRAR:**
 
-1. Cierra sesión e inicia sesión con la cuenta del **técnico**.
+1. En la barra superior, en **Demo Rol**, haz clic en **Técnico**.
 2. En el menú, haz clic en **Incidencias** y abre el ticket de la impresora.
 3. Pulsa **Tomar en Proceso**.
 4. Baja hasta «Documentar Solución». Escribe: `Se reemplazó el cartucho y se reinstaló el controlador.` Pulsa el botón de enviar.
@@ -233,4 +232,4 @@ El audio anterior quedó bajo. Acerca el micrófono o sube su nivel en el mezcla
 
 ## Nota sobre los accesos de demostración
 
-Los botones **Admin**, **Técnico** y **Usuario** de la pantalla de inicio entran con un usuario simulado, sin iniciar sesión en Firebase. Firestore rechaza todas sus lecturas y escrituras, y la aplicación muestra tres tickets de ejemplo. Por eso no sirven para la demo: nada de lo que hagas con ellos se guarda.
+Los botones **Admin**, **Técnico** y **Usuario** inician sesión con cuentas de demostración reales, definidas en `src/config/demoAccounts.js`. Su contraseña es pública a propósito, así que cualquiera que abra la aplicación puede entrar con esos roles: no guardes en la demo nada que no pueda verse o borrarse.

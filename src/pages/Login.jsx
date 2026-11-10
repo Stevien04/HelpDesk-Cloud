@@ -10,7 +10,7 @@ export const Login = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const { login, resetPassword, setDemoRole } = useAuth();
+  const { login, resetPassword, loginDemo } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -44,9 +44,27 @@ export const Login = () => {
     }
   };
 
-  const handleQuickDemoLogin = (role) => {
-    setDemoRole(role);
-    navigate('/dashboard');
+  const handleQuickDemoLogin = async (role) => {
+    setError('');
+    setMessage('');
+    setLoading(true);
+
+    try {
+      const res = await loginDemo(role);
+      if (res.profile?.rol !== role) {
+        setError(
+          `La cuenta de demostración ya existe, pero su rol todavía es "${res.profile?.rol}". ` +
+            `Cambia el campo "rol" a "${role}" en la colección usuarios de Firestore y vuelve a entrar.`
+        );
+        return;
+      }
+      navigate('/dashboard');
+    } catch (err) {
+      console.error(err);
+      setError('No se pudo iniciar sesión con la cuenta de demostración.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

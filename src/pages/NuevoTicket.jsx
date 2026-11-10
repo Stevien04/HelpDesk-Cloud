@@ -6,7 +6,7 @@ import TicketForm from '../components/tickets/TicketForm';
 import { AlertCircle, ArrowLeft, CheckCircle2 } from 'lucide-react';
 
 export const NuevoTicket = () => {
-  const { currentUser, userProfile, demoMode } = useAuth();
+  const { currentUser, userProfile } = useAuth();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);
@@ -33,11 +33,7 @@ export const NuevoTicket = () => {
       }, 1200);
     } catch (error) {
       console.error('No se pudo guardar el ticket en Firestore:', error);
-      setErrorMessage(
-        demoMode
-          ? 'El ticket no se guardó. El acceso rápido de demostración no inicia sesión en Firebase, así que Firestore rechaza la escritura. Cierra sesión e ingresa con una cuenta registrada para guardar tickets.'
-          : `El ticket no se guardó en Firestore: ${error.message}`
-      );
+      setErrorMessage(`El ticket no se guardó en Firestore: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
