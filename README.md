@@ -17,7 +17,7 @@
 | 💻 **Repositorio Público** | `https://github.com/Stevien04/HelpDesk-Cloud` |
 | 🌐 **Aplicación en Producción (Render SaaS)** | `https://helpdesk-cloud.onrender.com` |
 | 📝 **Artículo Técnico (Medium / Dev.to / Hashnode)** | [Ver Artículo Técnico en docs/articulo.md](docs/articulo.md) |
-| 🎥 **Video Demostrativo (<= 5 minutos)** | [Ver Guion de Grabación en docs/guion-video.md](docs/guion-video.md) |
+| 🎥 **Video Demostrativo (<= 5 minutos)** | [https://www.youtube.com/watch?v=ChbUKJrGsBg](https://www.youtube.com/watch?v=ChbUKJrGsBg) |
 
 ---
 

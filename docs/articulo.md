@@ -1,6 +1,6 @@
 # Estrategia de respaldo en bases de datos NoSQL: construcción y despliegue automatizado de HelpDesk Cloud con Cloud Firestore y CI/CD
 
-**Autor:** TU_NOMBRE
+**Autor:** Stevie Marca Aguilar
 **Fecha:** noviembre de 2026
 **Etiquetas:** nosql, firebase, devops, githubactions
 
@@ -22,7 +22,7 @@ Este artículo recorre la arquitectura, el modelo de datos, las funcionalidades,
 
 - Repositorio público: [github.com/Stevien04/HelpDesk-Cloud](https://github.com/Stevien04/HelpDesk-Cloud)
 - Aplicación desplegada: [helpdesk-cloud.onrender.com](https://helpdesk-cloud.onrender.com)
-- Video demostrativo (menos de 5 minutos): ENLACE_DEL_VIDEO
+- Video demostrativo (menos de 5 minutos): [youtube.com/watch?v=ChbUKJrGsBg](https://www.youtube.com/watch?v=ChbUKJrGsBg)
 
 ---
 
@@ -128,9 +128,9 @@ La aplicación distingue tres roles:
 
 Un ticket recorre los estados `pendiente → en_proceso → resuelto → cerrado`. Las transiciones permitidas dependen del rol: por ejemplo, el técnico puede pasar un ticket de pendiente a en proceso, y el usuario que lo creó lo cierra una vez resuelto; el administrador puede hacer cualquier cambio. Esa lógica está en `src/utils/validators.js` y tiene sus propias pruebas unitarias.
 
-La pantalla de inicio incluye accesos rápidos de demostración para cada rol:
+La pantalla de inicio incluye accesos rápidos de demostración para cada rol. Cada uno inicia sesión con una cuenta de demostración real, de modo que los tres roles leen y escriben los mismos datos en Firestore y cualquiera puede recorrer el flujo completo sin registrarse:
 
-![Pantalla de inicio de sesión de HelpDesk Cloud](capturas/login.png)
+![Pantalla de inicio de sesión de HelpDesk Cloud](https://raw.githubusercontent.com/Stevien04/HelpDesk-Cloud/main/docs/capturas/login.png)
 
 El módulo de reportes incorpora además un panel con la estrategia de respaldo: niveles, objetivos de recuperación y comandos.
 
@@ -286,7 +286,7 @@ jobs:
 
 El orden importa: si una prueba falla, el flujo se detiene y no se llega a compilar ni a desplegar. El despliegue solo ocurre con un `push` a `main`, no con un pull request.
 
-![Ejecuciones del pipeline en GitHub Actions](capturas/github-actions.png)
+![Ejecuciones del pipeline en GitHub Actions](https://raw.githubusercontent.com/Stevien04/HelpDesk-Cloud/main/docs/capturas/github-actions.png)
 
 ---
 
@@ -322,7 +322,15 @@ La aplicación está disponible con HTTPS en [helpdesk-cloud.onrender.com](https
 
 **Dificultades.**
 
-- *La primera ejecución del pipeline falló.* De las cinco ejecuciones registradas, la primera terminó en error y las cuatro siguientes en verde. Tener el pipeline desde el primer commit hizo visible el fallo de inmediato, en lugar de descubrirlo con la aplicación ya publicada.
+- *Las reglas rechazaban la creación de tickets.* Fue el error más instructivo del proyecto. Crear un ticket escribe dos documentos en un mismo lote: el ticket y su primer evento de historial. La regla del historial comprobaba quién era el dueño del ticket con `get()`, que consulta el estado de la base **antes** del lote, cuando el ticket todavía no existe. Resultado: `Missing or insufficient permissions` para cualquier usuario que no fuera administrador. La solución fue usar `getAfter()`, que evalúa el documento tal como quedará al terminar el lote (regla simplificada):
+
+  ```js
+  allow create: if request.resource.data.autorId == request.auth.uid
+    && getAfter(/databases/$(database)/documents/tickets/$(ticketId)).data.creadoPor == request.auth.uid;
+  ```
+
+- *Un mensaje de éxito que ocultaba el fallo.* El error anterior tardó en aparecer porque la interfaz mostraba una confirmación aunque Firestore hubiera rechazado la escritura. La lección: ante un fallo de guardado, la aplicación debe mostrar el error real, no simular que todo salió bien.
+- *La primera ejecución del pipeline falló.* La primera ejecución terminó en error y las siguientes en verde. Tener el pipeline desde el primer commit hizo visible el fallo de inmediato, en lugar de descubrirlo con la aplicación ya publicada.
 - *La versión de Node.js importa.* Las versiones actuales de Vite y Vitest no arrancan con Node 20.11; el pipeline fija Node 22 para que el entorno de integración sea siempre el mismo, con independencia de lo que tenga instalado cada integrante.
 - *Rutas de una SPA en un hosting estático.* Hubo que añadir la regla de reescritura descrita en el apartado anterior.
 - *Subcolecciones y exportaciones.* Como se explicó, el historial debe indicarse de forma explícita al exportar.
@@ -346,6 +354,6 @@ La aplicación está disponible con HTTPS en [helpdesk-cloud.onrender.com](https
 
 - Repositorio: [github.com/Stevien04/HelpDesk-Cloud](https://github.com/Stevien04/HelpDesk-Cloud)
 - Aplicación: [helpdesk-cloud.onrender.com](https://helpdesk-cloud.onrender.com)
-- Video: ENLACE_DEL_VIDEO
+- Video: [youtube.com/watch?v=ChbUKJrGsBg](https://www.youtube.com/watch?v=ChbUKJrGsBg)
 
 ¿Qué estrategia de respaldo usas en tus bases de datos NoSQL? Te leo en los comentarios.
